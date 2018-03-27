@@ -15,20 +15,30 @@ import maze.State;
  *
  * @author junha
  */
-public class MdpValueIteration {
-    private int loopvalue = 0;
+public class MdpPolicyIteration {
     private double discount;
     private double convergence;
     private Assignment1 enviroment;
-    private int loopcount;
+    //loopcount decides how many inner iterations before replacing policy
+    private int UV_loopcount;
+    private int Policy_loopcount = 0;
     
-    public MdpValueIteration( double discount,  Assignment1 enviroment){
+    public MdpPolicyIteration(int loopcount, double discount,  Assignment1 enviroment){
         
         this.discount = discount;
         this.convergence = enviroment.maxReward() * 1e-3; 
         this.enviroment = enviroment; 
+        this.UV_loopcount = loopcount;
+       
         
         
+    }
+    
+    public void instantiateFixedPolicy(){
+        ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
+        for(int i = 0 ; i < allpossibleStates.size(); i++){
+            allpossibleStates.get(i).setPolicy(Action.DOWN);
+        }
     }
     
     //Summation of all possible states and its utility value
@@ -43,62 +53,55 @@ public class MdpValueIteration {
                 fut_UValue += next_state.get(i).attribute * next_state.get(i).state.getCurrUtility_value();
             }
         }
-        
         return fut_UValue;
-        
     }
     
-    public double BestAction(State s){
+    public void BestAction(State s){
         List<Action> actions;
         double max_fut_UV = 0.00;
         int j = 0;
         double fut_UV = 0.00;
         actions =  enviroment.getAvaliableAction(s);
         for(int i = 0 ; i < actions.size() ;i++){
-             fut_UV = SumFutureUV(s, actions.get(i));
-             
+             fut_UV = SumFutureUV(s, actions.get(i));        
              if ( fut_UV > max_fut_UV){
                  max_fut_UV = fut_UV;
                  j = i;
-             }
-             
-             
-             
- 
-             
-             
+             }             
         }
-        s.setPolicy(actions.get(j));
-        return max_fut_UV;
+        s.setNew_policy(actions.get(j));
+    }
+    
+    
+    public void updateUV(State s){
+        s.setUpdated_UValue(s.getReward() + discount*SumFutureUV(s,s.getPolicy()));
+    }
+
+    
+    public void updatePolicyValue(State s){
+         BestAction(s);
     }
     
     
     
-    
-    
-    public void updateUtilityValue(State s){
-         s.setUpdated_UValue(s.getReward() + discount*BestAction(s));
-    }
-    
-    
-    
-    public void runValueIterationMdp(){
+    public void runPolicyIterationMdp(){
+
         boolean repeat;
- 
-        do{
-        ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
-        for(int i = 0 ; i< allpossibleStates.size();i++){
-            updateUtilityValue(allpossibleStates.get(i));
-            
+        ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();     
+    do{     
+        for(int i = 0 ; i < UV_loopcount ; i++ ){
+            for(int j = 0 ; j < allpossibleStates.size(); j++){
+                updateUV(allpossibleStates.get(j));
+            }
+            refreshUitilityValue();
+            printUitlityValue();  
         }
-         printUitlityValue();       
-
-        
-        repeat = maxDifference();
-        refreshUitilityValue();
-
-        
-        System.out.println("loopcount for Value Iteration Mdp = " + loopcount);
+        for(int i = 0 ; i< allpossibleStates.size();i++){
+           BestAction(allpossibleStates.get(i));
+        }     
+        repeat = PolicyDifference();
+        refreshPolicy(); 
+        System.out.println("loopcount for Policy Iteration Mdp = " + Policy_loopcount);
     } while(repeat);
                 
     }
@@ -136,29 +139,25 @@ public class MdpValueIteration {
               allpossibleStates.get(i).setCurrUtility_value(allpossibleStates.get(i).getUpdated_UValue());
           }
     }
-
     
-    public boolean maxDifference(){
-        
-        double maxDiff = 0.00;
-        double diff = 0.00;
+    public void refreshPolicy(){
+        ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
+          for(int i = 0 ; i < allpossibleStates.size(); i++){
+              allpossibleStates.get(i).setPolicy(allpossibleStates.get(i).getNew_policy());        
+    }
+    }
+    
+    public boolean PolicyDifference(){
+        boolean ret;
+
+        Policy_loopcount++;
          ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i < allpossibleStates.size(); i++){
-              
-              diff = (Math.abs(allpossibleStates.get(i).getUpdated_UValue())- Math.abs(allpossibleStates.get(i).getCurrUtility_value())  );
-              maxDiff = Math.max(maxDiff, diff);
-  
+            if( allpossibleStates.get(i).getNew_policy() != allpossibleStates.get(i).getPolicy())
+                return true;
                       
           }
-          
-          loopcount++;
-          
-          if(maxDiff>convergence)
-              return true;
-          else
-              return false;
-          
-        
+          return false;
     }
     
     

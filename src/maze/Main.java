@@ -5,6 +5,7 @@
  */
 package maze;
 
+import Mdp.MdpPolicyIteration;
 import Mdp.MdpValueIteration;
 import Mdp.RuleSet;
 
@@ -19,9 +20,13 @@ public class Main {
         Assignment1 qn1 = new Assignment1(); 
         qn1.instantiateAllStates(); 
         qn1.addStatesIntoCategory();
-        MdpValueIteration MdpValue = new MdpValueIteration(3, 0.98 , 1 , qn1 );
-        MdpValue.runMdp();
-        System.out.println("test");
-        
+        qn1.setImmediateReward();
+        MdpValueIteration MdpValue = new MdpValueIteration( 0.99 , qn1 );
+        System.out.println("Start Value Iteration Mdp");
+        MdpValue.runValueIterationMdp();
+        System.out.println("Start Policy Iteration Mdp");
+        MdpPolicyIteration MdpPolicy = new MdpPolicyIteration(100,0.99, qn1);
+        MdpPolicy.instantiateFixedPolicy();
+        MdpPolicy.runPolicyIterationMdp();
 }  
 }

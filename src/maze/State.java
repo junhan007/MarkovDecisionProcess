@@ -12,14 +12,44 @@ package maze;
 public class State {
     int row;
     int col;
-    int reward;
-    double utility_value;
+    double reward;
+    double curr_UValue;
+    double updated_UValue;
+    Action curr_policy;
+    Action new_policy;
+
+    public Action getNew_policy() {
+        return new_policy;
+    }
+
+    public void setNew_policy(Action new_policy) {
+        this.new_policy = new_policy;
+    }
+
+    public Action getPolicy() {
+        return curr_policy;
+    }
+
+    public void setPolicy(Action policy) {
+        this.curr_policy = policy;
+    }
+
+
+
+    public double getUpdated_UValue() {
+        return updated_UValue;
+    }
+
+    public void setUpdated_UValue(double updated_UValue) {
+        this.updated_UValue = updated_UValue;
+    }
     
-    public State (int row , int col) {
+    public State (int col , int row) {
        this.row = row;
        this.col = col;
        this.reward = 0;
-       this.utility_value = 0;
+       this.curr_UValue = 0;
+       this.updated_UValue = 0;
     }
 
     public int getRow() {
@@ -38,19 +68,19 @@ public class State {
         this.col = col;
     }
 
-    public double getUtility_value() {
-        return utility_value;
+    public double getCurrUtility_value() {
+        return curr_UValue;
     }
 
-    public void setUtility_value(double utility_value) {
-        this.utility_value = utility_value;
+    public void setCurrUtility_value(double utility_value) {
+        this.curr_UValue = utility_value;
     }
 
-    public int getReward() {
+    public double getReward() {
         return reward;
     }
 
-    public void setReward(int reward) {
+    public void setReward(double reward) {
         this.reward = reward;
     }
 }

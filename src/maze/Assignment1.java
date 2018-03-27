@@ -63,8 +63,8 @@ public class Assignment1 implements RuleSet{
     Pos_states.add(map[2][0]);
     Pos_states.add(map[5][0]);    
     Pos_states.add(map[3][1]);
-    Pos_states.add(map[4][1]);
-    Pos_states.add(map[5][1]);    
+    Pos_states.add(map[4][2]);
+    Pos_states.add(map[5][3]);    
     
     
     
@@ -86,15 +86,16 @@ public class Assignment1 implements RuleSet{
                 }
                }
               }
+
         return possiblestates;
     }
     
-    public State validateStates(State s){
-         if(s.getCol()>= 0 && s.getCol() < 6 && s.getRow() >= 0 && s.getRow() <6){
-             if(!Wall_states.contains(s))
-             return s;
+    public State validateStates(int col, int row, State s ){
+         if(col >= 0 && col < 6 && row >= 0 && row <6){
+             if(!Wall_states.contains(map[col][row]))
+             return map[col][row];
          }
-        return null; 
+        return s; 
     }
     
     @Override
@@ -103,39 +104,40 @@ public class Assignment1 implements RuleSet{
     }
     
     
-
+    //Possible Next States with corresponding probability depending on action.
     @Override  
  public List <Tuple<State,Double>> getNextState(State state, Action action){
      List<Tuple<State,Double>> possibleStates = new ArrayList(); 
      switch(action){
          case UP: {
-             possibleStates.add(new Tuple<>(validateStates(map[state.getCol()][state.getRow() - 1]),0.8));
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()+ 1][state.getRow()]), 0.1));
-             possibleStates.add(new Tuple<> (validateStates(map [state.getCol() - 1][state.getRow()]), 0.1));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol(), state.getRow() - 1, state),0.8));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol()+ 1,state.getRow(), state), 0.1));
+             possibleStates.add(new Tuple<> (validateStates(state.getCol() - 1,state.getRow(), state), 0.1));
              break;
          }
          case LEFT: {
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()][state.getRow()-1]), 0.1));
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()][state.getRow()+1]), 0.1));
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()-1][state.getRow()]), 0.8));             
+             possibleStates.add(new Tuple<>(validateStates(state.getCol(),state.getRow()-1, state), 0.1));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol(),state.getRow()+1, state), 0.1));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol()-1,state.getRow(), state), 0.8));             
              break;
          }
          case RIGHT:{
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()][state.getRow()+1]), 0.1));
-             possibleStates.add(new Tuple<>(validateStates(map[state.getCol()][state.getRow()-1]), 0.1));
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()+1][state.getRow()]), 0.8));           
+             possibleStates.add(new Tuple<>(validateStates(state.getCol(),state.getRow()+1, state), 0.1));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol(),state.getRow()-1, state), 0.1));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol()+1,state.getRow(), state), 0.8));           
              break;
                      }
          case DOWN:{
-             possibleStates.add(new Tuple<>(validateStates(map[state.getCol()][state.getRow()+1]),0.8));
-             possibleStates.add(new Tuple<>(validateStates(map [state.getCol()-1][state.getRow()]), 0.1));
-             possibleStates.add(new Tuple<> (validateStates(map [state.getCol()+1][state.getRow()]), 0.1));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol(),state.getRow()+1, state),0.8));
+             possibleStates.add(new Tuple<>(validateStates(state.getCol()-1,state.getRow(), state), 0.1));
+             possibleStates.add(new Tuple<> (validateStates(state.getCol()+1,state.getRow(), state), 0.1));
              break;
                      }         
          
              
     }
      return possibleStates;
+     
  }
  
  
@@ -150,17 +152,19 @@ public class Assignment1 implements RuleSet{
 	}
         
         public void setImmediateReward(){
-        
-        
         for( int i = 0 ; i < 6 ; i++ ){
             for (int j = 0 ; j < 6 ; j++ ){
                 State current_state = map[i][j];
                 if (Neg_states.contains(current_state)){
                     current_state.setReward(-1);
                 }
-                if (Pos_states.contains(current_state)){
+                else if (Pos_states.contains(current_state)){
                     current_state.setReward(1);
-                }                
+                }
+                else if (!Wall_states.contains(current_state)){
+                    current_state.setReward(-0.04);
+               
+                }
                }
               }
     }	
