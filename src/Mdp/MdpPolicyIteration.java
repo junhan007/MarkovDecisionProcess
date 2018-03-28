@@ -88,22 +88,25 @@ public class MdpPolicyIteration {
 
         boolean repeat;
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();     
-    do{     
+    do{   
+        //internal loop before refreshing policy
         for(int i = 0 ; i < UV_loopcount ; i++ ){
             for(int j = 0 ; j < allpossibleStates.size(); j++){
                 updateUV(allpossibleStates.get(j));
             }
             refreshUitilityValue();
-            printUitlityValue();  
+
         }
         for(int i = 0 ; i< allpossibleStates.size();i++){
            BestAction(allpossibleStates.get(i));
         }     
         repeat = PolicyDifference();
         refreshPolicy(); 
-        System.out.println("loopcount for Policy Iteration Mdp = " + Policy_loopcount);
+
     } while(repeat);
-                
+                System.out.println("loopcount for Policy Iteration Mdp = " + Policy_loopcount);        
+               printUitlityValue();   
+    
     }
     
     public void printUitlityValue(){

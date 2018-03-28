@@ -27,10 +27,7 @@ public class Assignment1 implements RuleSet{
     public final ArrayList Wall_states = new ArrayList();
     public final ArrayList Neg_states = new ArrayList();
     public final ArrayList Pos_states = new ArrayList();
- //   public final List<State> Wall_states  = Arrays.asList(new State(1,1), new State(2,1), new State(3,1), new State(1,5), new State(4,4) );
-  //  public final List<State> Neg_states = Arrays.asList(new State(4,1), new State(3,2), new State(2,3), new State(1,4), new State(5,4));
-  //  public final List<State> Pos_states = Arrays.asList(new State(0,5), new State(2,5), new State(3,4), new State(4,3), new State(5,2));
-    
+
     
     @Override
     public double maxReward(){

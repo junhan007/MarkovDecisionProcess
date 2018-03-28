@@ -25,7 +25,7 @@ public class Main {
         System.out.println("Start Value Iteration Mdp");
         MdpValue.runValueIterationMdp();
         System.out.println("Start Policy Iteration Mdp");
-        MdpPolicyIteration MdpPolicy = new MdpPolicyIteration(100,0.99, qn1);
+        MdpPolicyIteration MdpPolicy = new MdpPolicyIteration(50,0.99, qn1);
         MdpPolicy.instantiateFixedPolicy();
         MdpPolicy.runPolicyIterationMdp();
 }  

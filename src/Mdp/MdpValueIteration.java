@@ -91,15 +91,17 @@ public class MdpValueIteration {
             updateUtilityValue(allpossibleStates.get(i));
             
         }
-         printUitlityValue();       
+  
 
         
         repeat = maxDifference();
         refreshUitilityValue();
 
         
-        System.out.println("loopcount for Value Iteration Mdp = " + loopcount);
+  
     } while(repeat);
+              System.out.println("loopcount for Value Iteration Mdp = " + loopcount);
+                 printUitlityValue();     
                 
     }
     
