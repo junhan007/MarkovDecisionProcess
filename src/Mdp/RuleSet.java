@@ -19,7 +19,6 @@ public interface RuleSet {
     public double maxReward();
     public ArrayList <State> getAllPossibleStates();
     public List <Tuple<State,Double>> getNextState(State state, Action action);
-    public double getImmediateReward(State state); 
     public List<Action> getAvaliableAction(State state);
     
     

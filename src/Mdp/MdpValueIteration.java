@@ -5,6 +5,8 @@
  */
 package Mdp;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import maze.Action;
@@ -20,7 +22,7 @@ public class MdpValueIteration {
     private double discount;
     private double convergence;
     private Assignment1 enviroment;
-    private int loopcount;
+    private int loopcount ;
     
     public MdpValueIteration( double discount,  Assignment1 enviroment){
         
@@ -38,6 +40,7 @@ public class MdpValueIteration {
         double fut_UValue = 0.00;
         List<Tuple<State,Double>> next_state;
         next_state = enviroment.getNextState(state,action);
+        //iterates thru all possible next states
         for(int i = 0 ; i < next_state.size() ; i ++){
             if(next_state.get(i).state != null){
                 fut_UValue += next_state.get(i).attribute * next_state.get(i).state.getCurrUtility_value();
@@ -48,26 +51,24 @@ public class MdpValueIteration {
         
     }
     
+    //updates policy of state based on highest Utility Value returned among all possible action
     public double BestAction(State s){
         List<Action> actions;
         double max_fut_UV = 0.00;
         int j = 0;
-        double fut_UV = 0.00;
+        double fut_UV ;
+        //iterates thru all possible actions
         actions =  enviroment.getAvaliableAction(s);
         for(int i = 0 ; i < actions.size() ;i++){
              fut_UV = SumFutureUV(s, actions.get(i));
-             
+             //find max utility
              if ( fut_UV > max_fut_UV){
                  max_fut_UV = fut_UV;
                  j = i;
              }
-             
-             
-             
- 
-             
-             
+
         }
+
         s.setPolicy(actions.get(j));
         return max_fut_UV;
     }
@@ -75,37 +76,43 @@ public class MdpValueIteration {
     
     
     
-    
-    public void updateUtilityValue(State s){
+    //Sets Utility based on Bellman Eqn
+    public void findUtilityValue(State s){
          s.setUpdated_UValue(s.getReward() + discount*BestAction(s));
     }
     
     
     
-    public void runValueIterationMdp(){
+    public void runValueIterationMdp() throws IOException{
+
         boolean repeat;
  
         do{
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
+        //iterates thru all possible states
         for(int i = 0 ; i< allpossibleStates.size();i++){
-            updateUtilityValue(allpossibleStates.get(i));
+            findUtilityValue(allpossibleStates.get(i));
             
         }
-  
-
-        
+        //checks for convergence
         repeat = maxDifference();
-        refreshUitilityValue();
-
         
+        //set new utility for all states
+        refreshUtilityValue();
+        
+        try(FileWriter writer = new FileWriter("value.csv" , true )) {
+			writer.write(converToCSV());
+		}
+        
+
   
     } while(repeat);
               System.out.println("loopcount for Value Iteration Mdp = " + loopcount);
-                 printUitlityValue();     
+                 printUtilityValueAndPolicy();     
                 
     }
     
-    public void printUitlityValue(){
+    public void printUtilityValueAndPolicy(){
                 
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i< allpossibleStates.size();i++){
@@ -113,7 +120,7 @@ public class MdpValueIteration {
               System.out.println("(" + allpossibleStates.get(i).getCol()+ "," + allpossibleStates.get(i).getRow() + ") : " + " Action :" + allpossibleStates.get(i).getPolicy());            
         }
     }
-    public void printNewUitlityValue(){
+    public void printNewUtilityValue(){
                 
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i< allpossibleStates.size();i++){
@@ -132,14 +139,14 @@ public class MdpValueIteration {
     }
         
     
-    public void refreshUitilityValue(){
+    public void refreshUtilityValue(){
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i < allpossibleStates.size(); i++){
               allpossibleStates.get(i).setCurrUtility_value(allpossibleStates.get(i).getUpdated_UValue());
           }
     }
 
-    
+    //checks if Utility has converged
     public boolean maxDifference(){
         
         double maxDiff = 0.00;
@@ -161,6 +168,28 @@ public class MdpValueIteration {
               return false;
           
         
+    }
+    
+    public String converToCSV(){
+        StringBuilder strbuilder = new StringBuilder();
+ 
+        
+        for( int i = 0 ; i < enviroment.getAllPossibleStates().size() ; i++){
+            strbuilder.append(loopcount);
+          //  strbuilder.append(enviroment.getAllPossibleStates().get(i));
+          strbuilder.append(",");
+            strbuilder.append(enviroment.getAllPossibleStates().get(i).getUpdated_UValue());
+                 strbuilder.append(",");
+                 strbuilder.append("C");
+                 strbuilder.append(enviroment.getAllPossibleStates().get(i).getCol());
+                  strbuilder.append("R");          
+                 strbuilder.append(enviroment.getAllPossibleStates().get(i).getRow());                   
+                 
+            strbuilder.append("\n");
+            
+        }
+        
+        return strbuilder.toString();
     }
     
     

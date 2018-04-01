@@ -34,8 +34,18 @@ public class Assignment1 implements RuleSet{
         return 1;
     }
  
- 
-    
+ //Set Default Attributes 
+    public void refreshAllStates(){
+        for(int i = 0 ; i < 6 ; i++){
+            for ( int j = 0; j< 6; j++){
+                map[i][j].setCurrUtility_value(0);
+                map[i][j].setUpdated_UValue(0);
+                map[i][j].setNew_policy(null);
+                map[i][j].setPolicy(null);
+                
+            }
+        }
+    }
       
     public void instantiateAllStates(){
         for( int i = 0 ; i < 6 ; i++ ){
@@ -69,7 +79,7 @@ public class Assignment1 implements RuleSet{
 
     
     
- 
+
     @Override               
     public ArrayList<State> getAllPossibleStates(){
         
@@ -87,6 +97,7 @@ public class Assignment1 implements RuleSet{
         return possiblestates;
     }
     
+    //check if next states is possible, else remains in current state
     public State validateStates(int col, int row, State s ){
          if(col >= 0 && col < 6 && row >= 0 && row <6){
              if(!Wall_states.contains(map[col][row]))
@@ -137,17 +148,8 @@ public class Assignment1 implements RuleSet{
      
  }
  
- 
-    @Override
-	public double getImmediateReward(State state) {
-		if(Neg_states.contains(state))
-			return -1;
-		else if(Pos_states.contains(state))
-			return 1;
-		else
-			return -0.04;
-	}
-        
+
+        //instantiate reward attribute based on category
         public void setImmediateReward(){
         for( int i = 0 ; i < 6 ; i++ ){
             for (int j = 0 ; j < 6 ; j++ ){

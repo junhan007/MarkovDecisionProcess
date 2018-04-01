@@ -8,6 +8,7 @@ package maze;
 import Mdp.MdpPolicyIteration;
 import Mdp.MdpValueIteration;
 import Mdp.RuleSet;
+import java.io.IOException;
 
 /**
  *
@@ -15,7 +16,7 @@ import Mdp.RuleSet;
  */
 public class Main {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
     
         Assignment1 qn1 = new Assignment1(); 
         qn1.instantiateAllStates(); 
@@ -25,7 +26,8 @@ public class Main {
         System.out.println("Start Value Iteration Mdp");
         MdpValue.runValueIterationMdp();
         System.out.println("Start Policy Iteration Mdp");
-        MdpPolicyIteration MdpPolicy = new MdpPolicyIteration(50,0.99, qn1);
+        MdpPolicyIteration MdpPolicy = new MdpPolicyIteration(20,0.99, qn1);
+        qn1.refreshAllStates();
         MdpPolicy.instantiateFixedPolicy();
         MdpPolicy.runPolicyIterationMdp();
 }  

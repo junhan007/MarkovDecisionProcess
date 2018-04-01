@@ -5,6 +5,8 @@
  */
 package Mdp;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import maze.Action;
@@ -19,7 +21,7 @@ public class MdpPolicyIteration {
     private double discount;
     private double convergence;
     private Assignment1 enviroment;
-    //loopcount decides how many inner iterations before replacing policy
+    //loopcount decides how many inner iterations before re-evaluating policy
     private int UV_loopcount;
     private int Policy_loopcount = 0;
     
@@ -34,6 +36,7 @@ public class MdpPolicyIteration {
         
     }
     
+    //set default policy for all possible states
     public void instantiateFixedPolicy(){
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
         for(int i = 0 ; i < allpossibleStates.size(); i++){
@@ -41,13 +44,15 @@ public class MdpPolicyIteration {
         }
     }
     
-    //Summation of all possible states and its utility value
+    //Summation of all next states and its utility value
     //Sum(P(S'|s,a)U(S')
     public double SumFutureUV(State state, Action action){
         
         double fut_UValue = 0.00;
         List<Tuple<State,Double>> next_state;
+        //get possible next states
         next_state = enviroment.getNextState(state,action);
+        //iterates thru possible next states
         for(int i = 0 ; i < next_state.size() ; i ++){
             if(next_state.get(i).state != null){
                 fut_UValue += next_state.get(i).attribute * next_state.get(i).state.getCurrUtility_value();
@@ -56,12 +61,14 @@ public class MdpPolicyIteration {
         return fut_UValue;
     }
     
+    //Re-evulation of policy 
     public void BestAction(State s){
         List<Action> actions;
         double max_fut_UV = 0.00;
         int j = 0;
         double fut_UV = 0.00;
         actions =  enviroment.getAvaliableAction(s);
+        //iterates through all possible action
         for(int i = 0 ; i < actions.size() ;i++){
              fut_UV = SumFutureUV(s, actions.get(i));        
              if ( fut_UV > max_fut_UV){
@@ -72,44 +79,58 @@ public class MdpPolicyIteration {
         s.setNew_policy(actions.get(j));
     }
     
-    
-    public void updateUV(State s){
+    //get Utility Value based on bellmans equation 
+    public void findUtilityValue(State s){
         s.setUpdated_UValue(s.getReward() + discount*SumFutureUV(s,s.getPolicy()));
     }
 
     
-    public void updatePolicyValue(State s){
-         BestAction(s);
-    }
-    
-    
-    
-    public void runPolicyIterationMdp(){
 
+    
+    
+    
+    public void runPolicyIterationMdp() throws IOException{
+        //check for terminating condition 
         boolean repeat;
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();     
     do{   
-        //internal loop before refreshing policy
+
+        //internal loop before reevaluating policy
         for(int i = 0 ; i < UV_loopcount ; i++ ){
             for(int j = 0 ; j < allpossibleStates.size(); j++){
-                updateUV(allpossibleStates.get(j));
+                findUtilityValue(allpossibleStates.get(j));
             }
-            refreshUitilityValue();
+            //updates all states with new Utility
+            refreshUtilityValue();
 
         }
+        //Re-Evaluation of Policy for all states
         for(int i = 0 ; i< allpossibleStates.size();i++){
            BestAction(allpossibleStates.get(i));
-        }     
+        } 
+        
+        //check if there is a change in policy for any states. 
+        // returns true if there is change
         repeat = PolicyDifference();
+        
+        //updates all states with new Policy
         refreshPolicy(); 
+        
+        //Write to Csv File
+        try(FileWriter writer = new FileWriter("policy.csv" , true )) {
+                writer.write(converToCSV());
+		}
 
     } while(repeat);
+    
+    
                 System.out.println("loopcount for Policy Iteration Mdp = " + Policy_loopcount);        
-               printUitlityValue();   
+                
+               printUtilityValueAndPolicy();   
     
     }
     
-    public void printUitlityValue(){
+    public void printUtilityValueAndPolicy(){
                 
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i< allpossibleStates.size();i++){
@@ -117,7 +138,7 @@ public class MdpPolicyIteration {
               System.out.println("(" + allpossibleStates.get(i).getCol()+ "," + allpossibleStates.get(i).getRow() + ") : " + " Action :" + allpossibleStates.get(i).getPolicy());            
         }
     }
-    public void printNewUitlityValue(){
+    public void printNewUtilityValue(){
                 
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i< allpossibleStates.size();i++){
@@ -136,13 +157,15 @@ public class MdpPolicyIteration {
     }
         
     
-    public void refreshUitilityValue(){
+     //updates new Utility
+    public void refreshUtilityValue(){
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i < allpossibleStates.size(); i++){
               allpossibleStates.get(i).setCurrUtility_value(allpossibleStates.get(i).getUpdated_UValue());
           }
     }
     
+    //updates new Policy
     public void refreshPolicy(){
         ArrayList<State> allpossibleStates = enviroment.getAllPossibleStates();
           for(int i = 0 ; i < allpossibleStates.size(); i++){
@@ -150,6 +173,7 @@ public class MdpPolicyIteration {
     }
     }
     
+    //Checks for change in policy for any states
     public boolean PolicyDifference(){
         boolean ret;
 
@@ -163,6 +187,28 @@ public class MdpPolicyIteration {
           return false;
     }
     
+     
+    public String converToCSV(){
+        StringBuilder strbuilder = new StringBuilder();
+ 
+        
+        for( int i = 0 ; i < enviroment.getAllPossibleStates().size() ; i++){
+            strbuilder.append(Policy_loopcount);
+          //  strbuilder.append(enviroment.getAllPossibleStates().get(i));
+          strbuilder.append(",");
+            strbuilder.append(enviroment.getAllPossibleStates().get(i).getUpdated_UValue());
+                 strbuilder.append(",");
+                 strbuilder.append("C");
+                 strbuilder.append(enviroment.getAllPossibleStates().get(i).getCol());
+                  strbuilder.append("R");          
+                 strbuilder.append(enviroment.getAllPossibleStates().get(i).getRow());                   
+                 
+            strbuilder.append("\n");
+            
+        }
+        
+        return strbuilder.toString();
+    }
     
     
 }

@@ -16,14 +16,14 @@ public class State {
     double curr_UValue;
     double updated_UValue;
     Action curr_policy;
-    Action new_policy;
+    Action updated_policy;
 
     public Action getNew_policy() {
-        return new_policy;
+        return updated_policy;
     }
 
     public void setNew_policy(Action new_policy) {
-        this.new_policy = new_policy;
+        this.updated_policy = new_policy;
     }
 
     public Action getPolicy() {
