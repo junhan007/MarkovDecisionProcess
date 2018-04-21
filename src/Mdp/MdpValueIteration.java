@@ -18,11 +18,10 @@ import maze.State;
  * @author junha
  */
 public class MdpValueIteration {
-    private int loopvalue = 0;
     private double discount;
     private double convergence;
     private Assignment1 enviroment;
-    private int loopcount ;
+    private int loopcount = 0;
     
     public MdpValueIteration( double discount,  Assignment1 enviroment){
         

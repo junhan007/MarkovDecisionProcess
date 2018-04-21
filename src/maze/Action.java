@@ -11,4 +11,5 @@ package maze;
  */
 public enum Action {
     UP, DOWN, LEFT, RIGHT
+    //DLEFT, DRIGHT
 }
